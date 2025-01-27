@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Swimming Race Game</title>
+    <style>
+        @keyframes dive {
+            0% {
+                transform: scaleX(-1) rotate(0deg);
+                top: 0;
+            }
+            25% {
+                transform: scaleX(-1) rotate(-45deg);
+                top: -20px;
+            }
+            50% {
+                transform: scaleX(-1) rotate(-90deg);
+                top: 10px;
+            }
+            100% {
+                transform: scaleX(-1) rotate(0deg);
+                top: 10px;
+            }
+        }
+
+        .pool {
+            background: #a8e4ff;
+            padding: 20px;
+            border: 4px solid #0066cc;
+            border-radius: 8px;
+            position: relative;
+            margin: 20px;
+            overflow: hidden;
+        }
+        
+        .lane {
+            height: 60px;
+            border-bottom: 2px dashed red;
+            position: relative;
+            margin-bottom: 10px;
+            padding-left: 50px;
+        }
+
+        .starting-block {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            background: #808080;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .block-top {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 15px;
+            background: #606060;
+            border-radius: 0 8px 0 0;
+        }
+        
+        .swimmer {
+            position: absolute;
+            left: 50px;
+            width: 40px;
+            height: 40px;
+            transition: left 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            background: none;
+            transform: scaleX(-1);
+            z-index: 2;
+        }
+
+        .swimmer.diving {
+            animation: dive 1s forwards;
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 60px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: repeating-linear-gradient(
+                to bottom,
+                black 0,
+                black 10px,
+                white 10px,
+                white 20px
+            );
+            z-index: 1;
+        }
+
+        .flag-top {
+            position: absolute;
+            right: 40px;
+            top: -20px;
+            font-size: 30px;
+            transform: rotate(15deg);
+        }
+
+        .flag-bottom {
+            position: absolute;
+            right: 40px;
+            bottom: -20px;
+            font-size: 30px;
+            transform: rotate(-15deg);
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        
+        .btn:hover {
+            background: #0052a3;
+        }
+        
+        .winner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: #0066cc;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 3;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h2>Swimming Race</h2>
+        <p>Player 1: Press A repeatedly to swim | Player 2: Press L repeatedly to swim</p>
+        <button class="btn" onclick="startGame()">Start New Race</button>
+    </div>
+    
+    <div class="pool">
+        <div class="lane">
+            <div class="starting-block">
+                <div class="block-top"></div>
+            </div>
+            <div class="swimmer" id="player1">🏊‍♂️</div>
+        </div>
+        <div class="lane">
+            <div class="starting-block">
+                <div class="block-top"></div>
+            </div>
+            <div class="swimmer" id="player2">🏊</div>
+        </div>
+        <div class="finish-line"></div>
+        <div class="flag-top">🏁</div>
+        <div class="flag-bottom">🏁</div>
+        <div class="winner" id="winner"></div>
+        <div class="countdown" id="countdown"></div>
+    </div>
+
+    <script>
+        const player1 = document.getElementById('player1');
+        const player2 = document.getElementById('player2');
+        const winnerDisplay = document.getElementById('winner');
+        const countdownDisplay = document.getElementById('countdown');
+        let gameActive = false;
+        let player1Pos = 50;
+        let player2Pos = 50;
+        const finishLine = window.innerWidth - 160;
+        
+        function startGame() {
+            // Reset positions
+            player1Pos = 50;
+            player2Pos = 50;
+            player1.style.left = '50px';
+            player2.style.left = '50px';
+            player1.style.top = '0';
+            player2.style.top = '0';
+            winnerDisplay.style.display = 'none';
+            
+            // Remove any existing diving animations
+            player1.classList.remove('diving');
+            player2.classList.remove('diving');
+            
+            // Start countdown
+            let count = 3;
+            countdownDisplay.style.display = 'block';
+            
+            const countdown = setInterval(() => {
+                if (count > 0) {
+                    countdownDisplay.textContent = count;
+                } else if (count === 0) {
+                    countdownDisplay.textContent = 'GO!';
+                    // Add diving animation
+                    player1.classList.add('diving');
+                    player2.classList.add('diving');
+                } else {
+                    clearInterval(countdown);
+                    countdownDisplay.style.display = 'none';
+                    gameActive = true;
+                }
+                count--;
+            }, 1000);
+        }
+        
+        function moveSwimmer(player, position) {
+            player.style.left = position + 'px';
+        }
+        
+        function checkWinner(playerNum, position) {
+            if (position >= finishLine) {
+                gameActive = false;
+                winnerDisplay.innerHTML = `<h2>Player ${playerNum} Wins! 🏆</h2>`;
+                winnerDisplay.style.display = 'block';
+            }
+        }
+        
+        document.addEventListener('keydown', (event) => {
+            if (!gameActive) return;
+            
+            const key = event.key.toLowerCase();
+            const moveAmount = 20;
+            
+            if (key === 'a') {
+                player1Pos += moveAmount;
+                moveSwimmer(player1, player1Pos);
+                checkWinner(1, player1Pos);
+            } else if (key === 'l') {
+                player2Pos += moveAmount;
+                moveSwimmer(player2, player2Pos);
+                checkWinner(2, player2Pos);
+            }
+        });
+        
+        // Start the game when the page loads
+        startGame();
+    </script>
+</body>
+</html>
