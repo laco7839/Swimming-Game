@@ -2,6 +2,7 @@
 Swimming race game
 # Overview
 For this project, I created a simple two-player game. The swimmers race to the finish line. I worked with Claude to develop this game. Please see the video below to see how it works.
+# Video
 https://github.com/user-attachments/assets/b8bb5c6a-c8c1-4499-8f07-29bbd04f5d1d
 # Users
 This game is for people who want to have fun and race in a heatlhy, competitive way. 
